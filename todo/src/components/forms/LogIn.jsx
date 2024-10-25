@@ -1,27 +1,50 @@
 import { useState } from "react";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom"; // Add this if you use React Router for navigation
+import { auth } from "../../config/firbase";
 
 function LogIn() {
-  const [isLogin, setIsLogin] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Initialize navigation
+
+  const login = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const auth = getAuth();
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      console.log("User logged in successfully:", user);
+      setLoading(false);
+      navigate("/todo");
+    } catch (error) {
+      setError(error.message);
+      setLoading(false);
+    }
+  };
+  console.log("LoginUser:", auth?.currentUser?.name);
+  
 
   const onLogin = (e) => {
     e.preventDefault();
-    // Implement login logic here
-    setIsLogin(true);
+    login();
     console.log("Login submitted");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Login to Todo App
-        </h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Login to App</h1>
         <form onSubmit={onLogin} className="space-y-4">
           <div>
             <label htmlFor="email" className="text-lg text-gray-700 mb-2">
               Email
             </label>
             <input
+              onChange={(e) => setEmail(e.target.value)}
               type="email"
               id="email"
               className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
@@ -34,6 +57,7 @@ function LogIn() {
               Password
             </label>
             <input
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               id="password"
               className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
@@ -45,8 +69,9 @@ function LogIn() {
             type="submit"
             className="flex w-full items-center justify-center px-6 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
           >
-            Login
+            {loading ? "Logging In..." : "Log in"}
           </button>
+          {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
         </form>
       </div>
     </div>

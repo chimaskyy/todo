@@ -3,15 +3,27 @@ import AddTodoForm from "../forms/AddTodoForm";
 import TodoItem from "./TodoItem";
 import { LogOut, PlusCircle, X } from "lucide-react";
 import { useState } from "react";
+import {getAuth, signOut} from "firebase/auth"
+import { useNavigate } from "react-router-dom";
 function Todo() {
   // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [todos, setTodos] = useState([]);
   const [isAddTodoOpen, setIsAddTodoOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // const handleLogout = () => {
-  //   setIsLoggedIn(false);
-  // };
+  const auth = getAuth();
+  const user = auth.currentUser;
 
+  const  logOut = async () =>{
+    try{
+      await signOut(auth);
+      console.log("User loged out");
+      navigate("/login")
+    } catch (error) {
+      console.error("Error loging out");
+      
+    }
+  }
   const handleAddTodo = (todo) => {
     setTodos([...todos, todo]);
     toast.success("Todo added successfully");
@@ -31,16 +43,13 @@ function Todo() {
     setTodos(todos.filter((todo) => todo.id !== id));
     toast.success("Todo deleted successfully");
   };
-
-  // if (!isLoggedIn) {
-  //   return <AuthScreen onLogin={handleLogin} />;
-  // }
   return (
     <div className="min-h-screen bg-gray-100 p-4 lg:p-32 ">
       <Toaster />
       <nav className="flex justify-between items-center mb-8 bg-gray-50 p-4 rounded shadow-md">
         <h1 className="text-2xl font-bold text-gray-800">My Todo App</h1>
         <button
+          onClick={logOut}
           className="flex items-center px-4 py-2 text-gray-600 hover:text-gray-800 transition duration-200"
           // onClick={handleLogout}
         >
@@ -50,7 +59,12 @@ function Todo() {
 
       <main className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-800">Your Todos</h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            {" "}
+            {user
+              ? `${user.displayName}'s Todos`
+              : "User's Todos"}
+          </h2>
           <button
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
             onClick={() => setIsAddTodoOpen(true)}

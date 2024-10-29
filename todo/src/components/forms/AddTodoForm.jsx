@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { db } from "../../config/firbase";
+import { Timestamp } from "firebase/firestore";
 
 function AddTodoForm({ onAddTodo }) {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -10,20 +12,22 @@ function AddTodoForm({ onAddTodo }) {
     setError("");
 
     const formData = new FormData(e.target);
+    const dueDate = formData.get("dueDate");
     const todo = {
       id: Date.now(),
       title: formData.get("title"),
       description: formData.get("description"),
-      dueDate: formData.get("dueDate"),
+      dueDate: dueDate ? Timestamp.fromDate(new Date(dueDate)) : null,
       completed: false,
     };
-    try{
-        onAddTodo(todo);
-        e.target.reset();
-        setIsLoading(false);
-    } catch (err){
-        setError("Failed to add todo. Please try again.");
-        setIsLoading(false);
+
+    try {
+      onAddTodo(todo);
+      e.target.reset();
+      setIsLoading(false);
+    } catch (err) {
+      setError("Failed to add todo. Please try again.");
+      setIsLoading(false);
     }
   };
 

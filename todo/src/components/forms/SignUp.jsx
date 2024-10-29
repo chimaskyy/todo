@@ -1,8 +1,9 @@
 import { useState, } from "react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../../config/firbase";
-import {createUserWithEmailAndPassword, updateProfile} from "firebase/auth"
+import { auth, googleProvider } from "../../config/firbase";
+import { toast, Toaster } from "react-hot-toast";
+import {createUserWithEmailAndPassword, signInWithPopup, updateProfile} from "firebase/auth"
 
 function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,30 +21,49 @@ function SignUpForm() {
 
      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
      await updateProfile(userCredential.user, {displayName: username});
-      console.log("User signed up succesfully:", userCredential);
       setLoading(false);
+      console.log(userCredential)
+      toast.success("Sign up Succesfull")
       navigate("/login");
     } catch (error) {
-      setError(error.message);
+      toast.error(`Login failed: ${error.message}`);
       setLoading(false);
     }
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    signUp();
-    console.log("Sign up submitted");
+  const signUpWithGoogle = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const userCredential = await signInWithPopup(
+        auth, googleProvider
+      );
+      const user = userCredential.user;
+      const displayName = user.displayName
+        ? user.displayName.split(" ")[0]
+        : "User";
+      console.log("User's first name:", displayName);
+
+      toast.success(`Welcome, ${displayName}!`);
+      setLoading(false);
+      toast.success("Sign up Succesfull");
+      navigate("/todo");
+    } catch (error) {
+      toast.error(`Login failed: ${error.message}`);
+      setLoading(false);
+    }
   };
 
-  // const handleGoogleSignUp = () => {
-  //   // Implement Google sign-up logic here
-  //   console.log("Google sign-up initiated");
-  // };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    signUp(); 
+  };
   
-
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        <Toaster/>
         <div className="bg-white shadow-md rounded-lg p-8">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
@@ -60,7 +80,7 @@ function SignUpForm() {
                 <input
                   onChange={(e) => setName(e.target.value)}
                   id="username"
-                  username="username"
+                  name="username"
                   type="text"
                   autoComplete="username"
                   required
@@ -75,7 +95,7 @@ function SignUpForm() {
                 <input
                   onChange={(e) => setEmail(e.target.value)}
                   id="email-address"
-                  username="email"
+                  name="email"
                   type="email"
                   autoComplete="email"
                   required
@@ -90,7 +110,7 @@ function SignUpForm() {
                 <input
                   onChange={(e) => setPassword(e.target.value)}
                   id="password"
-                  username="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   required
@@ -138,7 +158,7 @@ function SignUpForm() {
 
             <div className="mt-6">
               <button
-                // onClick={handleGoogleSignUp}
+                onClick={signUpWithGoogle}
                 className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">

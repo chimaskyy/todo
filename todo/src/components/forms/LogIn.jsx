@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom"; // Add this if you use React Router for navigation
+import { browserLocalPersistence, getAuth, setPersistence, signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import { auth } from "../../config/firbase";
+import { toast, Toaster } from "react-hot-toast";
 
 function LogIn() {
   const [email, setEmail] = useState("");
@@ -16,26 +17,27 @@ function LogIn() {
       setError("");
 
       const auth = getAuth();
+      await setPersistence(auth, browserLocalPersistence);
       const user = await signInWithEmailAndPassword(auth, email, password);
       console.log("User logged in successfully:", user);
+      // console.log(user.user.accessToken);
       setLoading(false);
+      toast.success("Login Succcesfull");
       navigate("/todo");
     } catch (error) {
-      setError(error.message);
+      toast.error(`Wrong password or email, try again!`);
       setLoading(false);
     }
   };
-  console.log("LoginUser:", auth?.currentUser?.name);
-  
 
   const onLogin = (e) => {
     e.preventDefault();
     login();
-    console.log("Login submitted");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <Toaster />
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Login to App</h1>
         <form onSubmit={onLogin} className="space-y-4">

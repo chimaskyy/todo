@@ -5,6 +5,44 @@ import { auth, googleProvider } from "../../config/firbase";
 import { toast, Toaster } from "react-hot-toast";
 import {createUserWithEmailAndPassword, signInWithPopup, updateProfile} from "firebase/auth"
 
+/**
+ * SignUpForm component renders a sign-up form with fields for username, email, and password.
+ * It also provides options to sign up with Google and displays loading states and error messages.
+ *
+ * State Variables:
+ * - showPassword: Boolean to toggle the visibility of the password.
+ * - username: String to store the entered username.
+ * - email: String to store the entered email.
+ * - password: String to store the entered password.
+ * - loading: Boolean to indicate the loading state during sign-up.
+ * - error: String to store any error messages during sign-up.
+ *
+ * Functions:
+ * - signUp: Asynchronous function to handle sign-up using email and password.
+ * - signUpWithGoogle: Asynchronous function to handle sign-up using Google authentication.
+ * - handleSubmit: Function to handle form submission and trigger the sign-up process.
+ *
+ * UI Elements:
+ * - Input fields for username, email, and password.
+ * - Toggle button to show/hide password.
+ * - Submit button to sign up.
+ * - Button to sign up with Google.
+ * - Error message display.
+ * - Link to navigate to the login page.
+ *
+ * Dependencies:
+ * - useState: React hook to manage state variables.
+ * - useNavigate: React hook to navigate between routes.
+ * - createUserWithEmailAndPassword: Firebase function to create a user with email and password.
+ * - updateProfile: Firebase function to update the user's profile.
+ * - signInWithPopup: Firebase function to sign in with a popup (Google authentication).
+ * - toast: Function to display success or error messages.
+ * - EyeIcon, EyeOffIcon: Icons to show/hide password.
+ * - Toaster: Component to display toast messages.
+ * - Link: React Router component to navigate to the login page.
+ *
+ * @component
+ */
 function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setName] = useState("");
